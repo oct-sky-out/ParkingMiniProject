@@ -1,6 +1,7 @@
 package com.nhnacademy.parkinglot.parkingsystem;
 
 import com.nhnacademy.car.Car;
+import com.nhnacademy.exceptions.ParkingSpaceOverflowException;
 import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.enterance.Enterance;
 import com.nhnacademy.parkinglot.parkingspace.ParkingSpace;
@@ -23,9 +24,12 @@ public class ParkingSystem {
 
         if (parkedCodeNumber >= 10) { // 10대 보다 많이 주차하면
             int backNumber = parkedCodeNumber % 10 == 0 ? 1 : parkedCodeNumber % 10;
-            lotCode =
-                Character.toString('A' + (parkedCodeNumber / 10)) + "-" + backNumber;
+            int frontCharCode = 'A' + (parkedCodeNumber / 10);
 
+            if (frontCharCode >= 91) {
+                throw new ParkingSpaceOverflowException("더 이상 주차 공간이 없습니다.");
+            }
+            lotCode = Character.toString(frontCharCode) + "-" + backNumber;
         }
         if (parkedCodeNumber < 10) { // 10대보다 적게 주차했으면
             lotCode = "A-" + parkedCodeNumber;

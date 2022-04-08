@@ -2,6 +2,7 @@ package com.nhnacademy.parkingsystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.nhnacademy.car.Car;
 import com.nhnacademy.exceptions.NotMatchCarNumberException;
+import com.nhnacademy.exceptions.ParkingSpaceOverflowException;
 import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.parkingspace.ParkingSpace;
 import com.nhnacademy.parkinglot.parkingsystem.ParkingSystem;
@@ -37,7 +39,6 @@ class ParkingSystemTest {
 
         when(parkingLot.enter(car, lotCode)).thenReturn(any());
         parkingSystem.enterParkingLot(car);
-
 
         verify(parkingLot).enter(car, lotCode);
     }
@@ -136,4 +137,29 @@ class ParkingSystemTest {
         }
     }
 
+    @Test
+    @DisplayName("최대 주차공간 Z-9까지 주차 후, 다음 주차시 예외를 던짐")
+    void if_over_maximum_lot_throw_ParkingSpaceOverflowException() {
+        for (int i = 0; i < 260; i++) {
+            String carNumber = "12A " + (1230 + i);
+            Car car = new Car(carNumber);
+            String lotCode = "A-" + (i + 1);
+            ParkingSpace space = new ParkingSpace(car, lotCode);
+
+            when(parkingLot.enter(car, lotCode)).thenReturn(space);
+            when(parkingLot.getParkedSpaceCount()).thenReturn(i);
+
+            if (i == 259) {
+                assertThatThrownBy(() -> parkingSystem.enterParkingLot(car))
+                    .isInstanceOf(ParkingSpaceOverflowException.class)
+                    .hasMessageContaining("주차 공간", "없습니다.");
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("주차장에서 차가 나간다. 차가 나갈려면 주차 시간만큼 결제를 해야한다.")
+    void exit_user_car() {
+        fail("곧 테스트 구현예정");
+    }
 }
