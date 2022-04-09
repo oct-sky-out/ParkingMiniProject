@@ -184,7 +184,7 @@ class ParkingSystemTest {
     void exit_user_car_() {
         String carNumber = "12A 1234";
         long amount = 30_000L;
-        LocalDateTime outTime = LocalDateTime.now().plusMinutes(30); // 30분 1초
+        LocalDateTime outTime = LocalDateTime.now().plusMinutes(30); // 30분
         Car car = new Car(carNumber);
         User user = new User(amount, car, outTime);
         String lotCode = "A-1";
@@ -196,7 +196,7 @@ class ParkingSystemTest {
         parkingSystem.enterParkingLot(user);
         parkingSystem.exitUserCar(user);
 
-        assertThat(user.getAmount()).isEqualTo(29_000L);
+        assertThat(user.getAmount()).isEqualTo(30_000L);
         verify(parkingLot).enter(car, lotCode);
     }
 
@@ -217,7 +217,7 @@ class ParkingSystemTest {
         parkingSystem.enterParkingLot(user);
         parkingSystem.exitUserCar(user);
 
-        assertThat(user.getAmount()).isEqualTo(28_500L);
+        assertThat(user.getAmount()).isEqualTo(29_000L);
         verify(parkingLot).enter(car, lotCode);
     }
 
@@ -226,7 +226,7 @@ class ParkingSystemTest {
     void exit_user_car_over_time_price_case2() {
         String carNumber = "12A 1234";
         long amount = 30_000L;
-        LocalDateTime outTime = LocalDateTime.now().plusMinutes(50);
+        LocalDateTime outTime = LocalDateTime.now().plusMinutes(50); //50분
         Car car = new Car(carNumber);
         User user = new User(amount, car, outTime);
         String lotCode = "A-1";
@@ -238,7 +238,7 @@ class ParkingSystemTest {
         parkingSystem.enterParkingLot(user);
         parkingSystem.exitUserCar(user);
 
-        assertThat(user.getAmount()).isEqualTo(28_000L);
+        assertThat(user.getAmount()).isEqualTo(29_000L);
         verify(parkingLot).enter(car, lotCode);
     }
 
@@ -247,7 +247,7 @@ class ParkingSystemTest {
     void exit_user_car_over_time_price_case3() {
         String carNumber = "12A 1234";
         long amount = 30_000L;
-        LocalDateTime outTime = LocalDateTime.now().plusMinutes(61); // 50분 1초
+        LocalDateTime outTime = LocalDateTime.now().plusMinutes(61); // 61분
         Car car = new Car(carNumber);
         User user = new User(amount, car, outTime);
         String lotCode = "A-1";
@@ -259,7 +259,7 @@ class ParkingSystemTest {
         parkingSystem.enterParkingLot(user);
         parkingSystem.exitUserCar(user);
 
-        assertThat(user.getAmount()).isEqualTo(27_000L);
+        assertThat(user.getAmount()).isEqualTo(28_500L);
         verify(parkingLot).enter(car, lotCode);
     }
 
@@ -280,7 +280,7 @@ class ParkingSystemTest {
         parkingSystem.enterParkingLot(user);
         parkingSystem.exitUserCar(user);
 
-        assertThat(user.getAmount()).isEqualTo(20_000L);
+        assertThat(user.getAmount()).isEqualTo(15_000L);
         verify(parkingLot).enter(car, lotCode);
     }
 
@@ -301,7 +301,7 @@ class ParkingSystemTest {
         parkingSystem.enterParkingLot(user);
         parkingSystem.exitUserCar(user);
 
-        assertThat(user.getAmount()).isEqualTo(20_000L);
+        assertThat(user.getAmount()).isEqualTo(15_000L);
         verify(parkingLot).enter(car, lotCode);
     }
 
@@ -310,7 +310,7 @@ class ParkingSystemTest {
     void exit_user_car_over_time_price_case6() {
         String carNumber = "12A 1234";
         long amount = 30_000L;
-        LocalDateTime outTime = LocalDateTime.now().plusDays(1).plusHours(1); // 하루
+        LocalDateTime outTime = LocalDateTime.now().plusDays(1).plusHours(1); // 하루 + 1시간
         Car car = new Car(carNumber);
         User user = new User(amount, car, outTime);
         String lotCode = "A-1";
@@ -322,7 +322,7 @@ class ParkingSystemTest {
         parkingSystem.enterParkingLot(user);
         parkingSystem.exitUserCar(user);
 
-        assertThat(user.getAmount()).isEqualTo(17_500L);
+        assertThat(user.getAmount()).isEqualTo(14_000L);
         verify(parkingLot).enter(car, lotCode);
     }
 
@@ -331,7 +331,7 @@ class ParkingSystemTest {
     void exit_user_car_over_time_price_case7() {
         String carNumber = "12A 1234";
         long amount = 30_000L;
-        LocalDateTime outTime = LocalDateTime.now().plusDays(2); // 하루
+        LocalDateTime outTime = LocalDateTime.now().plusDays(2); // 이틀
         Car car = new Car(carNumber);
         User user = new User(amount, car, outTime);
         String lotCode = "A-1";
@@ -343,7 +343,7 @@ class ParkingSystemTest {
         parkingSystem.enterParkingLot(user);
         parkingSystem.exitUserCar(user);
 
-        assertThat(user.getAmount()).isEqualTo(10_000L);
+        assertThat(user.getAmount()).isEqualTo(0);
         verify(parkingLot).enter(car, lotCode);
     }
 
