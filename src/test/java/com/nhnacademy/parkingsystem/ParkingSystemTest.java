@@ -2,7 +2,6 @@ package com.nhnacademy.parkingsystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -15,6 +14,8 @@ import com.nhnacademy.exceptions.ParkingSpaceOverflowException;
 import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.parkingspace.ParkingSpace;
 import com.nhnacademy.parkinglot.parkingsystem.ParkingSystem;
+import com.nhnacademy.user.User;
+import java.time.LocalDateTime;
 import jdk.jfr.Description;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,10 +35,13 @@ class ParkingSystemTest {
     @DisplayName("차량이 들어오면 차량번호를 스캔한다.")
     void scan_car_number() {
         String carNumber = "12A 1234";
-        String lotCode = "A-0";
+        String lotCode = "A-1";
         Car car = new Car(carNumber);
+        long amount = 30_000;
+        User user = new User(amount, carNumber, LocalDateTime.of(2022, 4, 9, 17, 45));
+        ParkingSpace space = new ParkingSpace(car, lotCode);
 
-        when(parkingLot.enter(car, lotCode)).thenReturn(any());
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
         parkingSystem.enterParkingLot(car);
 
         verify(parkingLot).enter(car, lotCode);
@@ -56,8 +60,8 @@ class ParkingSystemTest {
         String errCase7 = "12가1234"; // 앞 뒤자리 사이 공백이 없을 때
         String suitableCase1 = "12A 1234"; // 올바른 케이스 1
         String suitableCase2 = "123A 1234"; // 올바른 케이스 2
-        String lotCode = "A-0";
-        String lotCode2 = "A-1";
+        String lotCode = "A-1";
+        String lotCode2 = "A-2";
 
         Car errCar1 = new Car(errCase1);
         assertThatThrownBy(() -> parkingSystem.enterParkingLot(errCar1))
@@ -96,11 +100,13 @@ class ParkingSystemTest {
 
 
         Car suitableCar1 = new Car(suitableCase1);
-        when(parkingLot.enter(suitableCar1, lotCode)).thenReturn(any());
+        ParkingSpace space1 = new ParkingSpace(suitableCar1, lotCode);
+        when(parkingLot.enter(suitableCar1, lotCode)).thenReturn(space1);
         parkingSystem.enterParkingLot(suitableCar1);
 
         Car suitableCar2 = new Car(suitableCase2);
-        when(parkingLot.enter(suitableCar2, lotCode2)).thenReturn(any());
+        ParkingSpace space2 = new ParkingSpace(suitableCar2, lotCode);
+        when(parkingLot.enter(suitableCar2, lotCode2)).thenReturn(space2);
         parkingSystem.enterParkingLot(suitableCar2);
 
         verify(parkingLot, times(2)).enter(any(), any());
@@ -158,8 +164,149 @@ class ParkingSystemTest {
     }
 
     @Test
-    @DisplayName("주차장에서 차가 나간다. 차가 나갈려면 주차 시간만큼 결제를 해야한다.")
+    @DisplayName("주차장에서 차가 나간다. 차가 나갈려면 주차 시간만큼 결제를 해야한다. - 30분이하")
     void exit_user_car() {
-        fail("곧 테스트 구현예정");
+        String carNumber = "12A 1234";
+        long amount = 30_000L;
+        LocalDateTime outTime = LocalDateTime.now().plusMinutes(30); // 30분 1초
+        User user = new User(amount, carNumber, outTime);
+        Car car = new Car(carNumber);
+        String lotCode = "A-1";
+        ParkingSpace space = new ParkingSpace(car, lotCode);
+
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
+        when(parkingLot.findByCarNumber(carNumber)).thenReturn(space);
+
+        parkingSystem.enterParkingLot(car);
+        parkingSystem.exitUserCar(user);
+
+        assertThat(user.getAmount()).isEqualTo(29_000L);
+        verify(parkingLot).enter(car, lotCode);
+    }
+
+    @Test
+    @DisplayName("주차장에서 차가 나간다. 차가 나갈려면 주차 시간만큼 결제를 해야한다. - 30분 1초 (초과요금 적용)")
+    void exit_user_car_over_time_price_case1() {
+        String carNumber = "12A 1234";
+        long amount = 30_000L;
+        LocalDateTime outTime = LocalDateTime.now().plusMinutes(30).plusSeconds(1); // 30분 1초
+        User user = new User(amount, carNumber, outTime);
+        Car car = new Car(carNumber);
+        String lotCode = "A-1";
+        ParkingSpace space = new ParkingSpace(car, lotCode);
+
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
+        when(parkingLot.findByCarNumber(carNumber)).thenReturn(space);
+
+        parkingSystem.enterParkingLot(car);
+        parkingSystem.exitUserCar(user);
+
+        assertThat(user.getAmount()).isEqualTo(28_500L);
+        verify(parkingLot).enter(car, lotCode);
+    }
+
+    @Test
+    @DisplayName("주차장에서 차가 나간다. 차가 나갈려면 주차 시간만큼 결제를 해야한다. - 50분 (초과요금 적용)")
+    void exit_user_car_over_time_price_case2() {
+        String carNumber = "12A 1234";
+        long amount = 30_000L;
+        LocalDateTime outTime = LocalDateTime.now().plusMinutes(50); // 50분 1초
+        User user = new User(amount, carNumber, outTime);
+        Car car = new Car(carNumber);
+        String lotCode = "A-1";
+        ParkingSpace space = new ParkingSpace(car, lotCode);
+
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
+        when(parkingLot.findByCarNumber(carNumber)).thenReturn(space);
+
+        parkingSystem.enterParkingLot(car);
+        parkingSystem.exitUserCar(user);
+
+        assertThat(user.getAmount()).isEqualTo(28_000L);
+        verify(parkingLot).enter(car, lotCode);
+    }
+
+    @Test
+    @DisplayName("주차장에서 차가 나간다. 차가 나갈려면 주차 시간만큼 결제를 해야한다. - 61분 (초과요금 적용)")
+    void exit_user_car_over_time_price_case3() {
+        String carNumber = "12A 1234";
+        long amount = 30_000L;
+        LocalDateTime outTime = LocalDateTime.now().plusMinutes(61); // 50분 1초
+        User user = new User(amount, carNumber, outTime);
+        Car car = new Car(carNumber);
+        String lotCode = "A-1";
+        ParkingSpace space = new ParkingSpace(car, lotCode);
+
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
+        when(parkingLot.findByCarNumber(carNumber)).thenReturn(space);
+
+        parkingSystem.enterParkingLot(car);
+        parkingSystem.exitUserCar(user);
+
+        assertThat(user.getAmount()).isEqualTo(27_000L);
+        verify(parkingLot).enter(car, lotCode);
+    }
+
+    @Test
+    @DisplayName("주차장에서 차가 나간다. 차가 나갈려면 주차 시간만큼 결제를 해야한다. - 6시간 (초과요금 적용)")
+    void exit_user_car_over_time_price_case4() {
+        String carNumber = "12A 1234";
+        long amount = 30_000L;
+        LocalDateTime outTime = LocalDateTime.now().plusHours(6); // 6시간
+        User user = new User(amount, carNumber, outTime);
+        Car car = new Car(carNumber);
+        String lotCode = "A-1";
+        ParkingSpace space = new ParkingSpace(car, lotCode);
+
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
+        when(parkingLot.findByCarNumber(carNumber)).thenReturn(space);
+
+        parkingSystem.enterParkingLot(car);
+        parkingSystem.exitUserCar(user);
+
+        assertThat(user.getAmount()).isEqualTo(20_000L);
+        verify(parkingLot).enter(car, lotCode);
+    }
+
+    @Test
+    @DisplayName("주차장에서 차가 나간다. 차가 나갈려면 주차 시간만큼 결제를 해야한다. - 1일 (초과요금 적용)")
+    void exit_user_car_over_time_price_case5() {
+        String carNumber = "12A 1234";
+        long amount = 30_000L;
+        LocalDateTime outTime = LocalDateTime.now().plusDays(1); // 하루
+        User user = new User(amount, carNumber, outTime);
+        Car car = new Car(carNumber);
+        String lotCode = "A-1";
+        ParkingSpace space = new ParkingSpace(car, lotCode);
+
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
+        when(parkingLot.findByCarNumber(carNumber)).thenReturn(space);
+
+        parkingSystem.enterParkingLot(car);
+        parkingSystem.exitUserCar(user);
+
+        assertThat(user.getAmount()).isEqualTo(20_000L);
+        verify(parkingLot).enter(car, lotCode);
+    }
+
+    @Test
+    @DisplayName("주차장에서 차가 나간다. 차가 나갈려면 주차 시간만큼 결제를 해야한다. - 2일 (초과요금 적용)")
+    void exit_user_car_over_time_price_case6() {
+        String carNumber = "12A 1234";
+        long amount = 30_000L;
+        LocalDateTime outTime = LocalDateTime.now().plusDays(2); // 하루
+        User user = new User(amount, carNumber, outTime);
+        Car car = new Car(carNumber);
+        String lotCode = "A-1";
+        ParkingSpace space = new ParkingSpace(car, lotCode);
+
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
+        when(parkingLot.findByCarNumber(carNumber)).thenReturn(space);
+
+        parkingSystem.enterParkingLot(car);
+        parkingSystem.exitUserCar(user);
+
+        assertThat(user.getAmount()).isEqualTo(10_000L);
+        verify(parkingLot).enter(car, lotCode);
     }
 }

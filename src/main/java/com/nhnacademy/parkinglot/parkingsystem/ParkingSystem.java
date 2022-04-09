@@ -1,10 +1,13 @@
 package com.nhnacademy.parkinglot.parkingsystem;
 
+import com.nhnacademy.Time;
 import com.nhnacademy.car.Car;
 import com.nhnacademy.exceptions.ParkingSpaceOverflowException;
 import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.enterance.Enterance;
+import com.nhnacademy.parkinglot.exit.Exit;
 import com.nhnacademy.parkinglot.parkingspace.ParkingSpace;
+import com.nhnacademy.user.User;
 
 public class ParkingSystem {
     private final ParkingLot parkingLot;
@@ -36,6 +39,14 @@ public class ParkingSystem {
         }
 
         return lotCode;
+    }
+
+    public User exitUserCar(User user) {
+        ParkingSpace space = findParkingLotByCarNumber(user.getCarNumber());
+        Time enterTime = space.getEnterTime();
+        Time outTime = user.getOutTime();
+        user.payParkingLotFee(Exit.pay(enterTime, outTime));
+        return user;
     }
 
     public ParkingSpace findParkingLotByCarNumber(String carNumber) {
