@@ -1,6 +1,5 @@
 package com.nhnacademy.parkinglot.parkingsystem;
 
-import com.nhnacademy.Time;
 import com.nhnacademy.car.Car;
 import com.nhnacademy.car.cartype.CarType;
 import com.nhnacademy.exceptions.LackMoneyException;
@@ -10,13 +9,18 @@ import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.enterance.Enterance;
 import com.nhnacademy.parkinglot.exit.Exit;
 import com.nhnacademy.parkinglot.parkingspace.ParkingSpace;
+import com.nhnacademy.paycoserver.PaycoServer;
+import com.nhnacademy.time.Time;
 import com.nhnacademy.user.User;
+import java.util.Objects;
 
 public class ParkingSystem {
     private final ParkingLot parkingLot;
+    private final PaycoServer paycoServer;
 
-    public ParkingSystem(ParkingLot parkingLot) {
+    public ParkingSystem(ParkingLot parkingLot, PaycoServer paycoServer) {
         this.parkingLot = parkingLot;
+        this.paycoServer = paycoServer;
     }
 
     public synchronized ParkingSpace enterParkingLot(User user) {
@@ -57,10 +61,20 @@ public class ParkingSystem {
 
     private void payUserAmount(User user, Time enterTime, Time outTime) {
         try {
-            user.payParkingLotFee(Exit.pay(enterTime, outTime));
+            long fee = Exit.pay(enterTime, outTime);
+            long discountedPaycoFee = discountPaycoMember(user, fee);
+            user.payParkingLotFee(discountedPaycoFee);
         } catch (LackMoneyException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private long discountPaycoMember(User user, long fee) {
+        if (Objects.nonNull(user.getPaycoMember())) {
+            paycoServer.paycoMemberCommand(user.getPaycoMember());
+            fee = paycoServer.eventDiscount(fee);
+        }
+        return fee;
     }
 
     public ParkingSpace findParkingLotByCarNumber(String carNumber) {

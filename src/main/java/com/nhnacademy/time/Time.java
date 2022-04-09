@@ -1,4 +1,4 @@
-package com.nhnacademy;
+package com.nhnacademy.time;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

@@ -1,6 +1,6 @@
 package com.nhnacademy.fee;
 
-import com.nhnacademy.Time;
+import com.nhnacademy.time.Time;
 import java.time.LocalDateTime;
 
 public class Fee implements Calculatable {

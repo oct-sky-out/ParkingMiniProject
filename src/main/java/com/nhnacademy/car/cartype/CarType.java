@@ -1,5 +1,6 @@
 package com.nhnacademy.car.cartype;
 
+import com.nhnacademy.discountable.Discountable;
 import com.nhnacademy.exceptions.NotMatchCarNumberException;
 
 public enum CarType implements Discountable {

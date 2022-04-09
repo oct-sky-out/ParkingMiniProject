@@ -5,6 +5,7 @@ import com.nhnacademy.car.cartype.CarType;
 import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.parkingsystem.ParkingSystem;
 import com.nhnacademy.parkingsimultaion.ParkingSimulation;
+import com.nhnacademy.paycoserver.PaycoServer;
 import com.nhnacademy.user.User;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 public class NhnParkingLot {
     public static void main(String[] args) {
-        ParkingSystem nhnParkingLotSys = new ParkingSystem(new ParkingLot());
+        ParkingSystem nhnParkingLotSys = new ParkingSystem(new ParkingLot(), new PaycoServer());
 
         Set<Thread> userThreads = new HashSet<>();
 
@@ -27,7 +28,13 @@ public class NhnParkingLot {
                 .plusHours(random.nextInt(100))
                 .plusMinutes(random.nextInt(1000))
                 .plusSeconds(random.nextInt(1000));
-            User user = new User(amount, car, dateTime);
+
+            User user;
+            if (i % 2 == 0) {
+                user = User.normalUser(amount, car, dateTime);
+            } else {
+                user = User.paycoUser(amount, car, dateTime);
+            }
 
             userThreads.add(new Thread(new ParkingSimulation(user, nhnParkingLotSys)));
         }

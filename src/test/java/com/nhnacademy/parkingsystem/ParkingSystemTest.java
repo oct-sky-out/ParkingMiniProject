@@ -17,6 +17,7 @@ import com.nhnacademy.exceptions.ParkingSpaceOverflowException;
 import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.parkingspace.ParkingSpace;
 import com.nhnacademy.parkinglot.parkingsystem.ParkingSystem;
+import com.nhnacademy.paycoserver.PaycoServer;
 import com.nhnacademy.user.User;
 import java.time.LocalDateTime;
 import jdk.jfr.Description;
@@ -27,11 +28,13 @@ import org.junit.jupiter.api.Test;
 class ParkingSystemTest {
     ParkingSystem parkingSystem; // SUT
     ParkingLot parkingLot; // DOC
+    PaycoServer paycoServer; // DOC
 
     @BeforeEach
     void setUp() {
         parkingLot = mock(ParkingLot.class);
-        parkingSystem = new ParkingSystem(parkingLot);
+        paycoServer = mock(PaycoServer.class);
+        parkingSystem = new ParkingSystem(parkingLot, paycoServer);
     }
 
     @Test
@@ -41,7 +44,7 @@ class ParkingSystemTest {
         String lotCode = "A-1";
         Car car = new Car(carNumber, CarType.NORMAL);
         long amount = 30_000;
-        User user = new User(amount, car, LocalDateTime.of(2022, 4, 9, 17, 45));
+        User user = User.normalUser(amount, car, LocalDateTime.of(2022, 4, 9, 17, 45));
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
         when(parkingLot.enter(car, lotCode)).thenReturn(space);
@@ -68,56 +71,56 @@ class ParkingSystemTest {
         String lotCode2 = "A-2";
 
         Car errCar1 = new Car(errCase1, CarType.NORMAL);
-        User errUser1 = new User(30000, errCar1, dateTime);
+        User errUser1 = User.normalUser(30000, errCar1, dateTime);
         assertThatThrownBy(() -> parkingSystem.enterParkingLot(errUser1))
             .isInstanceOf(NotMatchCarNumberException.class)
             .hasMessageContaining("번호판", "형식", "올바르지않습니다.");
 
         Car errCar2 = new Car(errCase2, CarType.NORMAL);
-        User errUser2 = new User(30000, errCar2, dateTime);
+        User errUser2 = User.normalUser(30000, errCar2, dateTime);
         assertThatThrownBy(() -> parkingSystem.enterParkingLot(errUser2))
             .isInstanceOf(NotMatchCarNumberException.class)
             .hasMessageContaining("번호판", "형식", "올바르지않습니다.");
 
         Car errCar3 = new Car(errCase3, CarType.NORMAL);
-        User errUser3 = new User(30000, errCar3, dateTime);
+        User errUser3 = User.normalUser(30000, errCar3, dateTime);
         assertThatThrownBy(() -> parkingSystem.enterParkingLot(errUser3))
             .isInstanceOf(NotMatchCarNumberException.class)
             .hasMessageContaining("번호판", "형식", "올바르지않습니다.");
 
         Car errCar4 = new Car(errCase4, CarType.NORMAL);
-        User errUser4 = new User(30000, errCar4, dateTime);
+        User errUser4 = User.normalUser(30000, errCar4, dateTime);
         assertThatThrownBy(() -> parkingSystem.enterParkingLot(errUser4))
             .isInstanceOf(NotMatchCarNumberException.class)
             .hasMessageContaining("번호판", "형식", "올바르지않습니다.");
 
         Car errCar5 = new Car(errCase5, CarType.NORMAL);
-        User errUser5 = new User(30000, errCar5, dateTime);
+        User errUser5 = User.normalUser(30000, errCar5, dateTime);
         assertThatThrownBy(() -> parkingSystem.enterParkingLot(errUser5))
             .isInstanceOf(NotMatchCarNumberException.class)
             .hasMessageContaining("번호판", "형식", "올바르지않습니다.");
 
         Car errCar6 = new Car(errCase6, CarType.NORMAL);
-        User errUser6 = new User(30000, errCar6, dateTime);
+        User errUser6 = User.normalUser(30000, errCar6, dateTime);
         assertThatThrownBy(() -> parkingSystem.enterParkingLot(errUser6))
             .isInstanceOf(NotMatchCarNumberException.class)
             .hasMessageContaining("번호판", "형식", "올바르지않습니다.");
 
         Car errCar7 = new Car(errCase7, CarType.NORMAL);
-        User errUser7 = new User(30000, errCar7, dateTime);
+        User errUser7 = User.normalUser(30000, errCar7, dateTime);
         assertThatThrownBy(() -> parkingSystem.enterParkingLot(errUser7))
             .isInstanceOf(NotMatchCarNumberException.class)
             .hasMessageContaining("번호판", "형식", "올바르지않습니다.");
 
 
         Car suitableCar1 = new Car(suitableCase1, CarType.NORMAL);
-        User user1 = new User(30000, suitableCar1, dateTime);
+        User user1 = User.normalUser(30000, suitableCar1, dateTime);
         ParkingSpace space1 = new ParkingSpace(suitableCar1, lotCode);
         when(parkingLot.enter(suitableCar1, lotCode)).thenReturn(space1);
         parkingSystem.enterParkingLot(user1);
 
         Car suitableCar2 = new Car(suitableCase2, CarType.NORMAL);
-        User user2 = new User(30000, suitableCar2, dateTime);
+        User user2 = User.normalUser(30000, suitableCar2, dateTime);
         ParkingSpace space2 = new ParkingSpace(suitableCar2, lotCode);
         when(parkingLot.enter(suitableCar2, lotCode2)).thenReturn(space2);
         parkingSystem.enterParkingLot(user2);
@@ -132,7 +135,7 @@ class ParkingSystemTest {
         for (int i = 0; i < 11; i++) {
             String carNumber = "12A " + (1230 + i);
             Car car = new Car(carNumber, CarType.NORMAL);
-            User user = new User(30000, car, now);
+            User user = User.normalUser(30000, car, now);
             String lotCode = "A-" + (i + 1);
             ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -168,7 +171,7 @@ class ParkingSystemTest {
             String lotCode = "A-" + (i + 1);
             ParkingSpace space = new ParkingSpace(car, lotCode);
 
-            User user = new User(30000, car, now);
+            User user = User.normalUser(30000, car, now);
 
             when(parkingLot.enter(car, lotCode)).thenReturn(space);
             when(parkingLot.getParkedSpaceCount()).thenReturn(i);
@@ -188,7 +191,7 @@ class ParkingSystemTest {
         long amount = 30_000L;
         LocalDateTime outTime = LocalDateTime.now().plusMinutes(30); // 30분
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -209,7 +212,7 @@ class ParkingSystemTest {
         long amount = 30_000L;
         LocalDateTime outTime = LocalDateTime.now().plusMinutes(30).plusSeconds(1); // 30분 1초
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -230,7 +233,7 @@ class ParkingSystemTest {
         long amount = 30_000L;
         LocalDateTime outTime = LocalDateTime.now().plusMinutes(50); //50분
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -251,7 +254,7 @@ class ParkingSystemTest {
         long amount = 30_000L;
         LocalDateTime outTime = LocalDateTime.now().plusMinutes(61); // 61분
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -272,7 +275,7 @@ class ParkingSystemTest {
         long amount = 30_000L;
         LocalDateTime outTime = LocalDateTime.now().plusHours(6); // 6시간
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -293,7 +296,7 @@ class ParkingSystemTest {
         long amount = 30_000L;
         LocalDateTime outTime = LocalDateTime.now().plusDays(1); // 하루
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -314,7 +317,7 @@ class ParkingSystemTest {
         long amount = 30_000L;
         LocalDateTime outTime = LocalDateTime.now().plusDays(1).plusHours(1); // 하루 + 1시간
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -335,7 +338,7 @@ class ParkingSystemTest {
         long amount = 30_000L;
         LocalDateTime outTime = LocalDateTime.now().plusDays(2); // 이틀
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -356,7 +359,7 @@ class ParkingSystemTest {
         long amount = 1000L;
         LocalDateTime outTime = LocalDateTime.now().plusDays(2); // 하루
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -379,7 +382,7 @@ class ParkingSystemTest {
         long amount = 1000L;
         LocalDateTime outTime = LocalDateTime.now().plusHours(1); // 하루
         Car car = new Car(carNumber, CarType.SMALL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -400,7 +403,7 @@ class ParkingSystemTest {
         long amount = 1000L;
         LocalDateTime outTime = LocalDateTime.now().plusHours(1); // 하루
         Car car = new Car(carNumber, CarType.NORMAL);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
         String lotCode = "A-1";
         ParkingSpace space = new ParkingSpace(car, lotCode);
 
@@ -421,10 +424,32 @@ class ParkingSystemTest {
         long amount = 1000L;
         LocalDateTime outTime = LocalDateTime.now().plusDays(2); // 하루
         Car car = new Car(carNumber, CarType.LARGE);
-        User user = new User(amount, car, outTime);
+        User user = User.normalUser(amount, car, outTime);
 
         assertThatThrownBy(() -> parkingSystem.enterParkingLot(user))
             .isInstanceOf(LargeCarDoseNotParkException.class)
             .hasMessageContaining("대형차", "주차");
+    }
+
+    @Test
+    @DisplayName("페이코 회원은 10퍼센트 할인혜택을 받는다.")
+    void payco_user_10_percent_discount() {
+        String carNumber = "12A 1234";
+        long amount = 1000L;
+        LocalDateTime outTime = LocalDateTime.now().plusHours(1); // 하루
+        Car car = new Car(carNumber, CarType.NORMAL);
+        User user = User.paycoUser(amount, car, outTime);
+        String lotCode = "A-1";
+        ParkingSpace space = new ParkingSpace(car, lotCode);
+
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
+        when(parkingLot.findByCarNumber(carNumber)).thenReturn(space);
+        when(paycoServer.eventDiscount(amount)).thenReturn(900L);
+
+        parkingSystem.enterParkingLot(user);
+        parkingSystem.exitUserCar(user);
+
+        assertThat(user.getAmount()).isEqualTo(100);
+        verify(parkingLot).enter(car, lotCode);
     }
 }

@@ -1,7 +1,7 @@
 package com.nhnacademy.parkinglot.parkingspace;
 
-import com.nhnacademy.Time;
 import com.nhnacademy.car.Car;
+import com.nhnacademy.time.Time;
 import java.time.LocalDateTime;
 
 public class ParkingSpace {

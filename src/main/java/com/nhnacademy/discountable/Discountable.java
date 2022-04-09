@@ -1,4 +1,4 @@
-package com.nhnacademy.car.cartype;
+package com.nhnacademy.discountable;
 
 public interface Discountable {
     long discount(long fee);

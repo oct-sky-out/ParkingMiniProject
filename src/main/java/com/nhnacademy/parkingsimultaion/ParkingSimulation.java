@@ -20,6 +20,7 @@ public class ParkingSimulation implements Runnable {
         System.out.println("유저의 차량번호는 :" + this.user.getCarNumber());
         System.out.println("유저의 차량 타입은 :" + this.user.getCar().getCarType().name());
         System.out.println("유저의 주차 코드는 :" + space.getLotCode());
+        System.out.println("유저는 페이코 회원여부 :" + this.user.getPaycoMember());
 
         system.exitUserCar(this.user);
 
