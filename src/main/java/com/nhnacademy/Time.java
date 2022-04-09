@@ -9,7 +9,7 @@ public class Time {
 
     public Time(LocalDateTime dateTime) {
         this.dateTime = dateTime;
-        this.milliSecond = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        this.milliSecond = parseMilli(dateTime);
     }
 
     public LocalDateTime getDateTime() {
@@ -18,5 +18,9 @@ public class Time {
 
     public long getMilliSeconds() {
         return milliSecond;
+    }
+
+    private long parseMilli(LocalDateTime dateTime) {
+        return dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 }

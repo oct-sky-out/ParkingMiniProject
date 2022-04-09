@@ -1,6 +1,7 @@
 package com.nhnacademy.fee;
 
 import com.nhnacademy.Time;
+import java.time.LocalDateTime;
 
 public class Fee implements Calculatable {
     private static final long THIRTY_MINUTE_MILLISECONDS = 1_800_000L; // 30분 초단위 변환값
@@ -15,6 +16,10 @@ public class Fee implements Calculatable {
     @Override
     public long calculate(Time enterTime, Time outTime) {
         long usingParkingLotMilliSeconds = outTime.getMilliSeconds() - enterTime.getMilliSeconds();
+
+        if (usingParkingLotMilliSeconds == 0) {
+            return 0;
+        }
 
         if (usingParkingLotMilliSeconds >= DAY_OF_MILLI_SECONDS) {
             return this.overDayCalculate(enterTime, outTime);
@@ -33,12 +38,15 @@ public class Fee implements Calculatable {
         return BASIC_FEE + ((long) overMinute + 1) * OVER_TIME_FEE;
     }
 
-    private int getDayOfNumber(Time dateTime) {
-        return dateTime.getDateTime().getDayOfMonth();
-    }
-
     private long overDayCalculate(Time enterTime, Time outTime) {
         int overDay = this.getDayOfNumber(outTime) - this.getDayOfNumber(enterTime);
-        return (overDay * MAX_FEE_PER_DAY);
+        LocalDateTime subOutDateTime = outTime.getDateTime().minusDays(overDay);
+        Time subOutTime = new Time(subOutDateTime);
+
+        return (overDay * MAX_FEE_PER_DAY) + this.calculate(enterTime, subOutTime);
+    }
+
+    private int getDayOfNumber(Time dateTime) {
+        return dateTime.getDateTime().getDayOfMonth();
     }
 }

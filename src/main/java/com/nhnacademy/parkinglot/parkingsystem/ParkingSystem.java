@@ -2,6 +2,7 @@ package com.nhnacademy.parkinglot.parkingsystem;
 
 import com.nhnacademy.Time;
 import com.nhnacademy.car.Car;
+import com.nhnacademy.exceptions.LackMoneyException;
 import com.nhnacademy.exceptions.ParkingSpaceOverflowException;
 import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.enterance.Enterance;
@@ -16,9 +17,10 @@ public class ParkingSystem {
         this.parkingLot = parkingLot;
     }
 
-    public ParkingSpace enterParkingLot(Car car) {
-        Enterance.scan(car);
-        return this.parkingLot.enter(car, generateParkingLotCode());
+    public synchronized ParkingSpace enterParkingLot(User user) {
+        Car userCar = user.getCar();
+        Enterance.scan(userCar);
+        return this.parkingLot.enter(userCar, generateParkingLotCode());
     }
 
     private String generateParkingLotCode() {
@@ -41,7 +43,7 @@ public class ParkingSystem {
         return lotCode;
     }
 
-    public User exitUserCar(User user) {
+    public synchronized User exitUserCar(User user) {
         ParkingSpace space = findParkingLotByCarNumber(user.getCarNumber());
         Time enterTime = space.getEnterTime();
         Time outTime = user.getOutTime();
