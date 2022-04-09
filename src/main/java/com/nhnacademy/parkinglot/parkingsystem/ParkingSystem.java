@@ -43,12 +43,19 @@ public class ParkingSystem {
         return lotCode;
     }
 
-    public synchronized User exitUserCar(User user) {
+    public synchronized void exitUserCar(User user) {
         ParkingSpace space = findParkingLotByCarNumber(user.getCarNumber());
         Time enterTime = space.getEnterTime();
         Time outTime = user.getOutTime();
-        user.payParkingLotFee(Exit.pay(enterTime, outTime));
-        return user;
+        payUserAmount(user, enterTime, outTime);
+    }
+
+    private void payUserAmount(User user, Time enterTime, Time outTime) {
+        try {
+            user.payParkingLotFee(Exit.pay(enterTime, outTime));
+        } catch (LackMoneyException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public ParkingSpace findParkingLotByCarNumber(String carNumber) {
