@@ -35,20 +35,19 @@ public class Fee implements Calculatable {
             return MAX_FEE_PER_DAY;
         }
 
-        double overMinute = overSeconds / TEN_MINUTE_MILLI_SECONDS; // 이용 초과 분
+        double overMinute = (double) overSeconds / TEN_MINUTE_MILLI_SECONDS; // 이용 초과 분
         return OVERTIME_BASE_FEE + ((long) overMinute + 1) * OVER_TIME_FEE;
     }
 
     private long overDayCalculate(Time enterTime, Time outTime) {
-        long overDay =
-            (outTime.getMilliSeconds() - enterTime.getMilliSeconds()) / DAY_OF_MILLI_SECONDS;
+        long overDay = this.getOverDay(enterTime.getMilliSeconds(), outTime.getMilliSeconds());
         LocalDateTime subOutDateTime = outTime.getDateTime().minusDays(overDay);
         Time subOutTime = new Time(subOutDateTime);
 
         return (overDay * MAX_FEE_PER_DAY) + this.calculate(enterTime, subOutTime);
     }
 
-    private int getDayOfNumber(Time dateTime) {
-        return dateTime.getDateTime().getDayOfMonth();
+    private long getOverDay(long enterMilli, long outMilli) {
+        return (outMilli - enterMilli) / DAY_OF_MILLI_SECONDS;
     }
 }

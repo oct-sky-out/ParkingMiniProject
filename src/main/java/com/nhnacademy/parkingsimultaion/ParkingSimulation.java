@@ -16,13 +16,16 @@ public class ParkingSimulation implements Runnable {
     @Override
     public void run() {
         ParkingSpace space = system.enterParkingLot(user); // 입차
+        System.out.println("유저의 소지금 :" + this.user.getAmount());
         System.out.println("유저의 차량번호는 :" + this.user.getCarNumber());
+        System.out.println("유저의 차량 타입은 :" + this.user.getCar().getCarType().name());
         System.out.println("유저의 주차 코드는 :" + space.getLotCode());
 
         system.exitUserCar(this.user);
 
         System.out.println(
-            this.user.getCarNumber() + "유저의 정산 시간은 :" + this.user.getOutTime().getDateTime());
-        System.out.println(this.user.getCarNumber() + "유저의 잔액은 :" + this.user.getAmount());
+            this.user.getCarNumber() + " 차량의 정산 시간은 :" + this.user.getOutTime().getDateTime());
+        System.out.println(this.user.getCarNumber() + " 유저의 잔액은 :" + this.user.getAmount());
+        System.out.println("___________________________________________________");
     }
 }

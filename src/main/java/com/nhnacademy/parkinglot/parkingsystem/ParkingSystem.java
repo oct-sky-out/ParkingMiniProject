@@ -2,7 +2,9 @@ package com.nhnacademy.parkinglot.parkingsystem;
 
 import com.nhnacademy.Time;
 import com.nhnacademy.car.Car;
+import com.nhnacademy.car.cartype.CarType;
 import com.nhnacademy.exceptions.LackMoneyException;
+import com.nhnacademy.exceptions.LargeCarDoseNotParkException;
 import com.nhnacademy.exceptions.ParkingSpaceOverflowException;
 import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.enterance.Enterance;
@@ -19,16 +21,19 @@ public class ParkingSystem {
 
     public synchronized ParkingSpace enterParkingLot(User user) {
         Car userCar = user.getCar();
+        if (userCar.getCarType() == CarType.LARGE) {
+            throw new LargeCarDoseNotParkException("대형차는 주차할 수 없습니다.");
+        }
         Enterance.scan(userCar);
         return this.parkingLot.enter(userCar, generateParkingLotCode());
     }
 
     private String generateParkingLotCode() {
         String lotCode = "";
-        int parkedCodeNumber = parkingLot.getParkedSpaceCount() + 1;
+        int parkedCodeNumber = parkingLot.getParkedSpaceCount();
 
         if (parkedCodeNumber >= 10) { // 10대 보다 많이 주차하면
-            int backNumber = parkedCodeNumber % 10 == 0 ? 1 : parkedCodeNumber % 10;
+            int backNumber = (parkedCodeNumber - (parkedCodeNumber / 10) * 10) + 1;
             int frontCharCode = 'A' + (parkedCodeNumber / 10);
 
             if (frontCharCode >= 91) {
@@ -37,7 +42,7 @@ public class ParkingSystem {
             lotCode = Character.toString(frontCharCode) + "-" + backNumber;
         }
         if (parkedCodeNumber < 10) { // 10대보다 적게 주차했으면
-            lotCode = "A-" + parkedCodeNumber;
+            lotCode = "A-" + (parkedCodeNumber + 1);
         }
 
         return lotCode;

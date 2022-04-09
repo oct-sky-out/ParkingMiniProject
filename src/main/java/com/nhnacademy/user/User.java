@@ -20,7 +20,7 @@ public class User {
         if (this.amount < fee) {
             throw new LackMoneyException(this.getCarNumber() + "차량의 잔액이 부족합니다.");
         }
-        amount -= fee;
+        amount -= car.getCarType().discount(fee);
     }
 
     public Car getCar() {

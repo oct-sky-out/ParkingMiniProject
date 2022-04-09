@@ -1,6 +1,7 @@
 package com.nhnacademy;
 
 import com.nhnacademy.car.Car;
+import com.nhnacademy.car.cartype.CarType;
 import com.nhnacademy.parkinglot.ParkingLot;
 import com.nhnacademy.parkinglot.parkingsystem.ParkingSystem;
 import com.nhnacademy.parkingsimultaion.ParkingSimulation;
@@ -16,11 +17,12 @@ public class NhnParkingLot {
 
         Set<Thread> userThreads = new HashSet<>();
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             SecureRandom random = new SecureRandom();
             long amount = random.nextInt(100_000 - 10_000) + 10_000L;
             String carNumber = "12A " + (1230 + i);
-            Car car = new Car(carNumber);
+            int carTypeRandom = random.nextInt(3);
+            Car car = new Car(carNumber, CarType.values()[carTypeRandom]);
             LocalDateTime dateTime = LocalDateTime.now()
                 .plusHours(random.nextInt(100))
                 .plusMinutes(random.nextInt(1000))
@@ -30,6 +32,14 @@ public class NhnParkingLot {
             userThreads.add(new Thread(new ParkingSimulation(user, nhnParkingLotSys)));
         }
 
-        userThreads.forEach(Thread::start);
+        userThreads.forEach(thread -> {
+            try {
+                thread.start();
+                thread.join();
+            } catch (InterruptedException e) {
+                thread.interrupt();
+                System.out.println(e.getMessage());
+            }
+        });
     }
 }
