@@ -7,6 +7,7 @@ import com.nhnacademy.parkinglot.parkingsystem.ParkingSystem;
 import com.nhnacademy.parkingsimultaion.ParkingSimulation;
 import com.nhnacademy.paycoserver.PaycoServer;
 import com.nhnacademy.user.User;
+import com.nhnacademy.voucher.Voucher;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ public class NhnParkingLot {
             } else {
                 user = User.paycoUser(amount, car, dateTime);
             }
+            user.takeVoucher(Voucher.values()[random.nextInt(3)]);
 
             userThreads.add(new Thread(new ParkingSimulation(user, nhnParkingLotSys)));
         }

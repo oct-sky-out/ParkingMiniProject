@@ -19,6 +19,7 @@ import com.nhnacademy.parkinglot.parkingspace.ParkingSpace;
 import com.nhnacademy.parkinglot.parkingsystem.ParkingSystem;
 import com.nhnacademy.paycoserver.PaycoServer;
 import com.nhnacademy.user.User;
+import com.nhnacademy.voucher.Voucher;
 import java.time.LocalDateTime;
 import jdk.jfr.Description;
 import org.junit.jupiter.api.BeforeEach;
@@ -450,6 +451,30 @@ class ParkingSystemTest {
         parkingSystem.exitUserCar(user);
 
         assertThat(user.getAmount()).isEqualTo(100);
+        verify(parkingLot).enter(car, lotCode);
+    }
+
+    @Test
+    @DisplayName("유저는 주차권을 사용하여 할인 받는다.")
+    void user_use_voucher() {
+        String carNumber = "12A 1234";
+        long amount = 1000L;
+        LocalDateTime outTime = LocalDateTime.now().plusHours(1); // 하루
+        Car car = new Car(carNumber, CarType.NORMAL);
+        User user = User.paycoUser(amount, car, outTime);
+        String lotCode = "A-1";
+        ParkingSpace space = new ParkingSpace(car, lotCode);
+
+        user.takeVoucher(Voucher.ONE_HOUR);
+
+        when(parkingLot.enter(car, lotCode)).thenReturn(space);
+        when(parkingLot.findByCarNumber(carNumber)).thenReturn(space);
+        when(paycoServer.eventDiscount(amount)).thenReturn(900L);
+
+        parkingSystem.enterParkingLot(user);
+        parkingSystem.exitUserCar(user);
+
+        assertThat(user.getAmount()).isEqualTo(1000);
         verify(parkingLot).enter(car, lotCode);
     }
 }
