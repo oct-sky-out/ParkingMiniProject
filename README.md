@@ -1,44 +1,5 @@
 # 결산과제(주차 관제 프로그램)
 
-## 개념
-
-```uml
-class ParkingSystem {
-    parkingLot
-    List users
-}
-
-class ParkingSpace {
-    code
-    car
-}
-
-class ParkingLot {
-    List spaces
-    enter(...)
-    exit(...)
-}
-
-class Entrance {
-    scan(...)
-}
-
-class Exit {
-    pay(car)
-}
-
-class Car {
-    number
-}
-
-class User {
-    UserId id
-    Money amount
-}
-```
-
-> <span style="color:#999999">개념은 참고만 해주세요. 여러분의 생각과 테스트를 바탕으로 구현해주세요.</span>
-
 ## 스펙 1.
 
 ### 주차장에 차가 들어온다.
