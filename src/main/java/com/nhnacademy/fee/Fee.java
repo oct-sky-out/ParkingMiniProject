@@ -4,6 +4,7 @@ import com.nhnacademy.time.Time;
 import java.time.LocalDateTime;
 
 public class Fee implements Calculatable {
+    private static final long ONE_SECOND_MILLISECONDS = 1_000; // 1초 milli
     private static final long THIRTY_MINUTE_MILLISECONDS = 1_800_000L; // 30분 초단위 변환값
     private static final long ONE_HOUR_MILLISECONDS = THIRTY_MINUTE_MILLISECONDS * 2; // 1시간
     private static final long TEN_MINUTE_MILLI_SECONDS = THIRTY_MINUTE_MILLISECONDS / 3; // 10분
@@ -35,8 +36,13 @@ public class Fee implements Calculatable {
             return MAX_FEE_PER_DAY;
         }
 
-        double overMinute = (double) overSeconds / TEN_MINUTE_MILLI_SECONDS; // 이용 초과 분
-        return OVERTIME_BASE_FEE + ((long) overMinute + 1) * OVER_TIME_FEE;
+        Double overMinute = (double) overSeconds / (TEN_MINUTE_MILLI_SECONDS); // 10분 이용 초과 분
+        long overMinuteLongValue = overMinute.longValue();
+        
+        if (isOverOneSeconds(overSeconds) && overMinuteLongValue == 0) {
+            return OVERTIME_BASE_FEE + (overMinuteLongValue + 1) * OVER_TIME_FEE;
+        }
+        return OVERTIME_BASE_FEE + overMinuteLongValue * OVER_TIME_FEE;
     }
 
     private long overDayCalculate(Time enterTime, Time outTime) {
@@ -50,4 +56,9 @@ public class Fee implements Calculatable {
     private long getOverDay(long enterMilli, long outMilli) {
         return (outMilli - enterMilli) / DAY_OF_MILLI_SECONDS;
     }
+
+    private boolean isOverOneSeconds(long overSeconds) {
+        return Math.round((double) overSeconds / (ONE_SECOND_MILLISECONDS)) > 0;
+    }
+
 }
